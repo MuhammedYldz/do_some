@@ -1,0 +1,34 @@
+import 'package:flutter/material.dart';
+import 'package:do_some/models/todo';
+class TodoItem extends StatelessWidget {
+  final Todo todo;
+  TodoItem({required this.todo});
+  @override
+  Widget build(BuildContext context) {
+    Color color;
+    IconData icon;
+    switch (todo.category) {
+      case 'Short Term':
+        color = Colors.blue;
+        icon = Icons.flash_on;
+        break;
+      case 'Medium Term':
+        color = Colors.orange;
+        icon = Icons.hourglass_full;
+        break;
+      case 'Long Term':
+        color = Colors.red;
+        icon = Icons.schedule;
+        break;
+      default:
+        color = Colors.grey;
+        icon = Icons.error;
+    }
+    return ListTile(
+      leading: Icon(icon, color: color),
+      title: Text(todo.title),
+      subtitle: Text(todo.dueDate.toString()),
+      trailing: Icon(Icons.check_circle, color: color),
+    );
+  }
+}

@@ -1,0 +1,40 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:do_some/models/todo';
+import 'package:do_some/repositories/todo_repository';
+import 'dart:async';
+
+abstract class TodoEvent {}
+class LoadTodos extends TodoEvent {}
+
+abstract class TodoState {}
+class TodoInitial extends TodoState {}
+class TodoLoading extends TodoState {}
+class TodoLoaded extends TodoState {
+  final List<Todo> todos;
+  TodoLoaded(this.todos);
+}
+class TodoError extends TodoState {
+  final String message;
+  TodoError(this.message);
+}
+
+class TodoBloc extends Bloc<TodoEvent, TodoState> {
+  final ITodoRepository todoRepository;
+
+  TodoBloc({required this.todoRepository}) : super(TodoInitial()) {
+    on<LoadTodos>((event, emit) {
+      emit(TodoLoading());
+      _todoSubscription = todoRepository.getTodos().listen(
+        (todos) => emit(TodoLoaded(todos)),
+        onError: (e) => emit(TodoError("Failed to fetch todos: $e")),
+      );
+    });
+  }
+
+  @override
+  Future<void> close() {
+    _todoSubscription?.cancel();
+    return super.close();
+  }
+}
+

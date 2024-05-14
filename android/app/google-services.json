@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "107177628860",
+    "project_id": "do-some-17de4",
+    "storage_bucket": "do-some-17de4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107177628860:android:ca8420eceda44260a86cb9",
+        "android_client_info": {
+          "package_name": "com.example.do_some"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANyeEivXjb0ihPt2a7iN47rwl9TlmFzOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:107177628860:android:8cf9f685cf369827a86cb9",
+        "android_client_info": {
+          "package_name": "com.funfinity.dosome"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyANyeEivXjb0ihPt2a7iN47rwl9TlmFzOs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

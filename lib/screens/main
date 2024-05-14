@@ -1,0 +1,71 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:do_some/screens/home_screen.dart';
+import 'package:do_some/blocs/todo_bloc';
+import 'package:do_some/widgets/todo_items';
+import 'package:do_some/repositories/todo_repository';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:do_some/firebase_options.dart';
+
+import 'package:provider/provider.dart';
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    runApp(MyProviderApp());
+  } catch (e) {
+    print('Error initializing Firebase: $e');
+    runApp(ErrorApp());
+  }
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'TODO App',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: BlocProvider(
+        create: (context) {
+          TodoRepository repository;
+          try {
+            repository = Provider.of<TodoRepository>(context, listen: false);
+          } catch (e) {
+            print('Failed to load TodoBloc with provided TodoRepository: $e');
+            repository = TodoRepository(); // Ensure this constructor is fail-safe
+          }
+          return TodoBloc(todoRepository: repository);
+        },
+        child: HomeScreen(),
+      ),
+    );
+  }
+}
+
+class MyProviderApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Provider<ITodoRepository>(
+      create: (_) => TodoRepository(),
+      child: MyApp(),
+    );
+  }
+}
+
+class ErrorApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        body: Center(child: Text('Failed to initialize Firebase.')),
+      ),
+    );
+  }
+}
+
