@@ -9,7 +9,7 @@
             "name": "do_some",
             "request": "launch",
             "type": "dart",
-            "program": "lib/screens/main"
+            "program": "lib/main.dart"
         },
         {
             "name": "do_some (profile mode)",

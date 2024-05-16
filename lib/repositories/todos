@@ -1,3 +1,0 @@
-abstract class ITodoRepository {
-  Stream<List<Todo>> getTodos();
-}
