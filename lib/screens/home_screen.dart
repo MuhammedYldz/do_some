@@ -5,6 +5,7 @@ import './goal_list_screen.dart';
 import './calendar_screen.dart';
 import './account_screen.dart';
 import './add_goal_screen.dart';
+import './menu_screen.dart'; // Import the new MenuScreen
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -74,7 +75,11 @@ class HomeScreen extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.menu, color: Colors.blue),
                 onPressed: () {
-                  // Menu ekranına git
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (ctx) => MenuScreen(), // Navigate to MenuScreen
+                    ),
+                  );
                 },
               ),
             ],
