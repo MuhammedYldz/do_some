@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/goal_provider.dart';
@@ -5,7 +7,8 @@ import './goal_list_screen.dart';
 import './calendar_screen.dart';
 import './account_screen.dart';
 import './add_goal_screen.dart';
-import './menu_screen.dart'; // Import the new MenuScreen
+import './menu_screen.dart';
+import './login_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override

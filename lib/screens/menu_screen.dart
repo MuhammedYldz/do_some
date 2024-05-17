@@ -3,6 +3,7 @@ import './goal_list_screen.dart';
 import './calendar_screen.dart';
 import './account_screen.dart';
 import './settings_screen.dart';
+import './login_screen.dart';
 
 class MenuScreen extends StatelessWidget {
   @override
