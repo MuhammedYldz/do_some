@@ -48,4 +48,13 @@
 
 
 ####Screen Shots
-https://github.com/MuhammedYldz/do_some/issues/8#issue-2302004654
+Home Screen
+![image](https://github.com/MuhammedYldz/do_some/assets/52794566/246beaeb-f14a-4b31-a1c3-954446a79ebd)
+Goal Detail Screen
+![image](https://github.com/MuhammedYldz/do_some/assets/52794566/94508f17-9c42-47b7-a7f7-8d59231e2530)
+Add Goal Screen
+![image](https://github.com/MuhammedYldz/do_some/assets/52794566/0f422ca3-c759-4a4c-ba29-36d7d1070cd6)
+Calender
+![image](https://github.com/MuhammedYldz/do_some/assets/52794566/150d6abf-5c3b-41ee-92a8-43bda36c1902)
+Menu and Goals Menu
+![image](https://github.com/MuhammedYldz/do_some/assets/52794566/649c50d3-bf5f-4f67-a3a5-b81b8837c9cf)
