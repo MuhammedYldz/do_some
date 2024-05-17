@@ -45,3 +45,7 @@
 
 ### Settings
 - ...
+
+
+####Screen Shots
+https://github.com/MuhammedYldz/do_some/issues/8#issue-2302004654
