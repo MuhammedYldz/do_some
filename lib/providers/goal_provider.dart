@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/goals.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class GoalProvider with ChangeNotifier {
   List<Goal> _goals = [];
 
   List<Goal> get goals => _goals;
 
-  Future<void> fetchGoals(String userId) async {
+  Future<void> fetchGoals() async {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     final snapshot = await FirebaseFirestore.instance
         .collection('goals')
-        .where('userId', isEqualTo: userId)
+        .where('userId', isEqualTo: user.uid)
         .get();
 
     _goals = snapshot.docs
@@ -21,7 +25,13 @@ class GoalProvider with ChangeNotifier {
   }
 
   Future<void> addGoal(Goal goal) async {
-    await FirebaseFirestore.instance.collection('goals').add(goal.toJson());
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await FirebaseFirestore.instance.collection('goals').add({
+      ...goal.toJson(),
+      'userId': user.uid,
+    });
     _goals.add(goal);
     notifyListeners();
   }
