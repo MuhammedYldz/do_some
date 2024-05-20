@@ -1,39 +1,53 @@
-import 'package:do_some/widget/goal_item.dart';
 import 'package:flutter/material.dart';
-import 'package:do_some/models/goals.dart';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'goal_detail_screen.dart';
+import 'add_goal_screen.dart';
 
 class GoalListScreen extends StatelessWidget {
+  final String goalType;
+
+  GoalListScreen(this.goalType);
+
   @override
   Widget build(BuildContext context) {
-    // Dummy veriler
-    final goals = [
-      Goal(
-        name: 'Learn Flutter',
-        type: GoalType.long,
-        completionDate: DateTime.now().add(Duration(days: 365)),
-        period: 'daily',
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('$goalType Goals'),
       ),
-      Goal(
-        name: 'Read a book',
-        type: GoalType.medium,
-        completionDate: DateTime.now().add(Duration(days: 30)),
-        period: 'weekly',
-      ),
-      Goal(
-        name: 'Exercise',
-        type: GoalType.short,
-        completionDate: DateTime.now().add(Duration(days: 7)),
-        period: 'daily',
-      ),
-    ];
+      body: StreamBuilder(
+        stream: FirebaseFirestore.instance
+            .collection('goals')
+            .where('type', isEqualTo: goalType)
+            .snapshots(),
+        builder: (ctx, AsyncSnapshot<QuerySnapshot> snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          }
 
-    return ListView.builder(
-      itemCount: goals.length,
-      itemBuilder: (ctx, index) {
-        final goal = goals[index];
-        return GoalItem(goal);
-      },
+          final goalDocs = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: goalDocs.length,
+            itemBuilder: (ctx, index) => ListTile(
+              title: Text(goalDocs[index]['title']),
+              subtitle: Text(goalDocs[index]['description']),
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => GoalDetailScreen(goalDocs[index].id),
+                ));
+              },
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (context) => AddGoalScreen()),
+          );
+        },
+        child: Icon(Icons.add),
+      ),
     );
   }
 }

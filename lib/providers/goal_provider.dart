@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/goals.dart';
 
 class GoalProvider with ChangeNotifier {
@@ -8,29 +7,40 @@ class GoalProvider with ChangeNotifier {
 
   List<Goal> get goals => _goals;
 
-  void addGoal(Goal goal) {
+  Future<void> fetchGoals(String userId) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('goals')
+        .where('userId', isEqualTo: userId)
+        .get();
+
+    _goals = snapshot.docs
+        .map((doc) => Goal.fromJson(doc.data() as Map<String, dynamic>))
+        .toList();
+
+    notifyListeners();
+  }
+
+  Future<void> addGoal(Goal goal) async {
+    await FirebaseFirestore.instance.collection('goals').add(goal.toJson());
     _goals.add(goal);
     notifyListeners();
-    _saveToPreferences();
   }
 
-  void removeGoal(String id) {
-    _goals.removeWhere((goal) => goal.id == id);
-    notifyListeners();
-    _saveToPreferences();
-  }
-
-  void _saveToPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('goals', jsonEncode(_goals.map((goal) => goal.toJson()).toList()));
-  }
-
-  void loadFromPreferences() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? goalsString = prefs.getString('goals');
-    if (goalsString != null) {
-      _goals = (jsonDecode(goalsString) as List).map((item) => Goal.fromJson(item)).toList();
+  Future<void> updateGoal(Goal goal) async {
+    await FirebaseFirestore.instance
+        .collection('goals')
+        .doc(goal.id)
+        .update(goal.toJson());
+    final index = _goals.indexWhere((g) => g.id == goal.id);
+    if (index != -1) {
+      _goals[index] = goal;
       notifyListeners();
     }
+  }
+
+  Future<void> deleteGoal(String id) async {
+    await FirebaseFirestore.instance.collection('goals').doc(id).delete();
+    _goals.removeWhere((goal) => goal.id == id);
+    notifyListeners();
   }
 }

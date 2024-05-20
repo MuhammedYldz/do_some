@@ -1,49 +1,47 @@
-import 'package:uuid/uuid.dart';
-
-enum GoalType { long, medium, short }
-
 class Goal {
-  String id;
-  String name;
-  GoalType type;
-  DateTime completionDate;
-  String period;
-  List<String>? periodDates;
-  List<String>? periodReminders;
-  String? connection;
+  final String id;
+  final String title;
+  final String description;
+  final DateTime date;
+  final String type; // Kısa, Orta, Uzun vadeli
+  final String periodType; // Günlük, Haftalık, Aylık
+  final String periodUnit; // Kere, Saat
+  final int periodValue; // Sayısal değer
 
   Goal({
-    required this.name,
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.date,
     required this.type,
-    required this.completionDate,
-    required this.period,
-    this.periodDates,
-    this.periodReminders,
-    this.connection,
-  }) : id = Uuid().v4();
+    required this.periodType,
+    required this.periodUnit,
+    required this.periodValue,
+  });
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
-      'type': type.toString().split('.').last, // Enum to string
-      'completionDate': completionDate.toIso8601String(),
-      'period': period,
-      'periodDates': periodDates,
-      'periodReminders': periodReminders,
-      'connection': connection,
+      'title': title,
+      'description': description,
+      'date': date.toIso8601String(),
+      'type': type,
+      'periodType': periodType,
+      'periodUnit': periodUnit,
+      'periodValue': periodValue,
     };
   }
 
   factory Goal.fromJson(Map<String, dynamic> json) {
     return Goal(
-      name: json['name'],
-      type: GoalType.values.firstWhere((e) => e.toString() == 'GoalType.${json['type']}'),
-      completionDate: DateTime.parse(json['completionDate']),
-      period: json['period'],
-      periodDates: json['periodDates'] != null ? List<String>.from(json['periodDates']) : null,
-      periodReminders: json['periodReminders'] != null ? List<String>.from(json['periodReminders']) : null,
-      connection: json['connection'],
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      date: DateTime.parse(json['date']),
+      type: json['type'],
+      periodType: json['periodType'],
+      periodUnit: json['periodUnit'],
+      periodValue: json['periodValue'],
     );
   }
 }

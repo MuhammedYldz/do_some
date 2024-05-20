@@ -1,14 +1,9 @@
-// ignore_for_file: unused_import
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../providers/goal_provider.dart';
-import './goal_list_screen.dart';
-import './calendar_screen.dart';
-import './account_screen.dart';
-import './add_goal_screen.dart';
-import './menu_screen.dart';
-import './login_screen.dart';
+import 'goal_list_screen.dart';
+import 'calendar_screen.dart';
+import 'account_screen.dart';
+import 'add_goal_screen.dart';
+import 'menu_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   @override
@@ -23,9 +18,7 @@ class HomeScreen extends StatelessWidget {
             icon: Icon(Icons.calendar_today, color: Colors.black),
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (ctx) => CalendarScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => CalendarScreen()),
               );
             },
           ),
@@ -44,11 +37,15 @@ class HomeScreen extends StatelessWidget {
       body: Column(
         children: [
           Expanded(
-            child: GoalListScreen(), // Dummy verilerle doldurulacak kısa ve orta vadeli hedefler
+            child: GoalListScreen('Kısa Vadeli'), // Kısa vadeli hedefler
           ),
           SizedBox(height: 10),
           Expanded(
-            child: GoalListScreen(), // Dummy verilerle doldurulacak uzun vadeli hedefler
+            child: GoalListScreen('Orta Vadeli'), // Orta vadeli hedefler
+          ),
+          SizedBox(height: 10),
+          Expanded(
+            child: GoalListScreen('Uzun Vadeli'), // Uzun vadeli hedefler
           ),
         ],
       ),
@@ -80,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (ctx) => MenuScreen(), // Navigate to MenuScreen
+                      builder: (ctx) => MenuScreen(),
                     ),
                   );
                 },

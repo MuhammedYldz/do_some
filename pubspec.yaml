@@ -22,6 +22,7 @@ dependencies:
   firebase_core: ^2.30.1
   table_calendar: ^3.0.8
   firebase_auth: ^4.19.5
+  
 
 dev_dependencies:
   flutter_test:

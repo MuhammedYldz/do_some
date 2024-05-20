@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/goals.dart';
-import '../screens/goal_detail_screen.dart';
+import 'package:do_some/screens/goal_detail_screen.dart';
+import '../models/goals.dart'; // Goal modelini ithal edin
 
 class GoalItem extends StatelessWidget {
   final Goal goal;
@@ -10,12 +10,12 @@ class GoalItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      title: Text(goal.name),
-      subtitle: Text('Due: ${goal.completionDate.toIso8601String().split('T')[0]}'),
+      title: Text(goal.title),
+      subtitle: Text(goal.description),
       onTap: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (ctx) => GoalDetailScreen(goal),
+            builder: (context) => GoalDetailScreen(goal.id), // goal.id'yi geçiyoruz
           ),
         );
       },

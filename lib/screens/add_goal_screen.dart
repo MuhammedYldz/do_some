@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../models/goals.dart';
-import '../providers/goal_provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddGoalScreen extends StatefulWidget {
   @override
@@ -10,23 +9,31 @@ class AddGoalScreen extends StatefulWidget {
 
 class _AddGoalScreenState extends State<AddGoalScreen> {
   final _formKey = GlobalKey<FormState>();
-  String _name = '';
-  GoalType _type = GoalType.short;
-  DateTime _completionDate = DateTime.now().add(Duration(days: 7));
-  String _period = 'daily';
+  final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _periodValueController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
+  String _selectedType = 'Kısa Vadeli';
+  String _selectedPeriodType = 'Günlük';
+  String _selectedPeriodUnit = 'Kere';
 
-  void _submitData() {
+  Future<void> _addGoal() async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save();
-      Provider.of<GoalProvider>(context, listen: false).addGoal(
-        Goal(
-          name: _name,
-          type: _type,
-          completionDate: _completionDate,
-          period: _period,
-        ),
-      );
-      Navigator.of(context).pop();
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance.collection('goals').add({
+          'title': _titleController.text,
+          'description': _descriptionController.text,
+          'date': _selectedDate,
+          'type': _selectedType,
+          'periodType': _selectedPeriodType,
+          'periodUnit': _selectedPeriodUnit,
+          'periodValue': int.parse(_periodValueController.text),
+          'userId': user.uid,
+        });
+
+        Navigator.of(context).pop();
+      }
     }
   }
 
@@ -37,99 +44,93 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
         title: Text('Add Goal'),
       ),
       body: Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
               TextFormField(
-                decoration: InputDecoration(labelText: 'Goal Name'),
+                controller: _titleController,
+                decoration: InputDecoration(labelText: 'Title'),
                 validator: (value) {
                   if (value!.isEmpty) {
-                    return 'Please provide a name.';
+                    return 'Please enter a title';
                   }
                   return null;
                 },
-                onSaved: (value) {
-                  _name = value!;
-                },
               ),
-              DropdownButtonFormField<GoalType>(
-                value: _type,
-                decoration: InputDecoration(labelText: 'Goal Type'),
-                items: [
-                  DropdownMenuItem(
-                    child: Text('Short Term'),
-                    value: GoalType.short,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('Medium Term'),
-                    value: GoalType.medium,
-                  ),
-                  DropdownMenuItem(
-                    child: Text('Long Term'),
-                    value: GoalType.long,
-                  ),
-                ],
-                onChanged: (value) {
-                  setState(() {
-                    _type = value!;
-                  });
-                },
-                onSaved: (value) {
-                  _type = value!;
-                },
-              ),
-              
               TextFormField(
-                decoration: InputDecoration(labelText: 'Completion Date'),
-                readOnly: true,
-                onTap: () async {
-                  DateTime? pickedDate = await showDatePicker(
-                    context: context,
-                    initialDate: _completionDate,
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2101),
-                  );
-                  if (pickedDate != null) {
-                    setState(() {
-                      _completionDate = pickedDate;
-                    });
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Description'),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter a description';
                   }
+                  return null;
                 },
-                controller: TextEditingController(
-                  text: _completionDate.toLocal().toString().split(' ')[0],
-                ),
               ),
-              DropdownButtonFormField<String>(
-                value: _period,
-                decoration: InputDecoration(labelText: 'Period'),
-                items: [
-                  DropdownMenuItem(
-                    child: Text('Daily'),
-                    value: 'daily',
-                  ),
-                  DropdownMenuItem(
-                    child: Text('Weekly'),
-                    value: 'weekly',
-                  ),
-                  DropdownMenuItem(
-                    child: Text('Monthly'),
-                    value: 'monthly',
-                  ),
-                ],
+              DropdownButtonFormField(
+                value: _selectedType,
+                items: ['Kısa Vadeli', 'Orta Vadeli', 'Uzun Vadeli']
+                    .map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type),
+                        ))
+                    .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _period = value!;
+                    _selectedType = value as String;
                   });
                 },
-                onSaved: (value) {
-                  _period = value!;
+                decoration: InputDecoration(labelText: 'Type'),
+              ),
+              DropdownButtonFormField(
+                value: _selectedPeriodType,
+                items: ['Günlük', 'Haftalık', 'Aylık']
+                    .map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPeriodType = value as String;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Period Type'),
+              ),
+              DropdownButtonFormField(
+                value: _selectedPeriodUnit,
+                items: ['Kere', 'Saat']
+                    .map((unit) => DropdownMenuItem(
+                          value: unit,
+                          child: Text(unit),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPeriodUnit = value as String;
+                  });
+                },
+                decoration: InputDecoration(labelText: 'Period Unit'),
+              ),
+              TextFormField(
+                controller: _periodValueController,
+                decoration: InputDecoration(labelText: 'Period Value'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter a period value';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
                 },
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitData,
+                onPressed: _addGoal,
                 child: Text('Add Goal'),
               ),
             ],

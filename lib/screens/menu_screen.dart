@@ -15,48 +15,27 @@ class MenuScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          ListTile(
-            title: Text('Goals'),
+           ListTile(
+            title: Text('Kısa Vadeli Goals'),
             onTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: (ctx) {
-                  return Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ListTile(
-                        title: Text('Short Term'),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (ctx) => GoalListScreen(/* filter: 'short_term' */),
-                            ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        title: Text('Middle Term'),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (ctx) => GoalListScreen(/* filter: 'middle_term' */),
-                            ),
-                          );
-                        },
-                      ),
-                      ListTile(
-                        title: Text('Long Term'),
-                        onTap: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (ctx) => GoalListScreen(/* filter: 'long_term' */),
-                            ),
-                          );
-                        },
-                      ),
-                    ],
-                  );
-                },
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => GoalListScreen('Kısa Vadeli')),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Orta Vadeli Goals'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => GoalListScreen('Orta Vadeli')),
+              );
+            },
+          ),
+          ListTile(
+            title: Text('Uzun Vadeli Goals'),
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => GoalListScreen('Uzun Vadeli')),
               );
             },
           ),
@@ -64,9 +43,7 @@ class MenuScreen extends StatelessWidget {
             title: Text('Calendar'),
             onTap: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (ctx) => CalendarScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => CalendarScreen()),
               );
             },
           ),
