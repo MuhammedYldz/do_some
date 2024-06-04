@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../models/goals.dart';
 
 class AddGoalScreen extends StatefulWidget {
   @override
@@ -17,22 +18,50 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
   String _selectedPeriodType = 'Günlük';
   String _selectedPeriodUnit = 'Kere';
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
   Future<void> _addGoal() async {
     if (_formKey.currentState!.validate()) {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        await FirebaseFirestore.instance.collection('goals').add({
-          'title': _titleController.text,
-          'description': _descriptionController.text,
-          'date': _selectedDate,
-          'type': _selectedType,
-          'periodType': _selectedPeriodType,
-          'periodUnit': _selectedPeriodUnit,
-          'periodValue': int.parse(_periodValueController.text),
-          'userId': user.uid,
-        });
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+        if (user != null) {
+          int totalPeriods = Goal.calculateTotalPeriods(DateTime.now(), _selectedDate, _selectedPeriodType);
 
-        Navigator.of(context).pop();
+          Goal newGoal = Goal(
+            
+            id: '', // Firestore tarafından otomatik oluşturulacak
+            title: _titleController.text,
+            description: _descriptionController.text,
+            date: _selectedDate,
+            type: _selectedType,
+            periodType: _selectedPeriodType,
+            periodUnit: _selectedPeriodUnit,
+            periodValue: int.parse(_periodValueController.text),
+            totalPeriods: totalPeriods,
+          );
+
+          await FirebaseFirestore.instance.collection('goals').add(newGoal.toJson());
+
+          Navigator.of(context).pop();
+        }
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occurred while saving the goal: $error'),
+          ),
+        );
       }
     }
   }
@@ -48,7 +77,9 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
         child: Form(
           key: _formKey,
           child: Column(
+            
             children: [
+              
               TextFormField(
                 controller: _titleController,
                 decoration: InputDecoration(labelText: 'Title'),
@@ -60,6 +91,7 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                 },
               ),
               TextFormField(
+                
                 controller: _descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
                 validator: (value) {
@@ -69,7 +101,22 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                   return null;
                 },
               ),
+              TextFormField(
+                controller: _periodValueController,
+                decoration: InputDecoration(labelText: 'Period Value'),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Please enter a period value';
+                  }
+                  if (int.tryParse(value) == null) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
+              ),
               DropdownButtonFormField(
+                
                 value: _selectedType,
                 items: ['Kısa Vadeli', 'Orta Vadeli', 'Uzun Vadeli']
                     .map((type) => DropdownMenuItem(
@@ -115,21 +162,16 @@ class _AddGoalScreenState extends State<AddGoalScreen> {
                 decoration: InputDecoration(labelText: 'Period Unit'),
               ),
               TextFormField(
-                controller: _periodValueController,
-                decoration: InputDecoration(labelText: 'Period Value'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return 'Please enter a period value';
-                  }
-                  if (int.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  return null;
-                },
+                decoration: InputDecoration(
+                  labelText: 'Due Date',
+                  hintText: 'Select Due Date',
+                ),
+                onTap: () => _selectDate(context),
+                readOnly: true,
+                controller: TextEditingController(text: _selectedDate.toLocal().toString().split(' ')[0]),
               ),
-              SizedBox(height: 20),
               ElevatedButton(
+                
                 onPressed: _addGoal,
                 child: Text('Add Goal'),
               ),

@@ -20,6 +20,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
   String _selectedType = 'Kısa Vadeli';
   String _selectedPeriodType = 'Günlük';
   String _selectedPeriodUnit = 'Kere';
+  bool _isCompleted = false;
 
   Future<void> _fetchGoal() async {
     DocumentSnapshot doc = await FirebaseFirestore.instance.collection('goals').doc(widget.goalId).get();
@@ -30,6 +31,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
     _selectedPeriodType = doc['periodType'];
     _selectedPeriodUnit = doc['periodUnit'];
     _periodValueController.text = doc['periodValue'].toString();
+    _isCompleted = doc['isCompleted'] ?? false;
   }
 
   Future<void> _updateGoal() async {
@@ -42,6 +44,7 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
         'periodType': _selectedPeriodType,
         'periodUnit': _selectedPeriodUnit,
         'periodValue': int.parse(_periodValueController.text),
+        'isCompleted': _isCompleted,
       });
 
       Navigator.of(context).pop();
@@ -143,6 +146,15 @@ class _GoalDetailScreenState extends State<GoalDetailScreen> {
                     return 'Please enter a valid number';
                   }
                   return null;
+                },
+              ),
+              CheckboxListTile(
+                title: Text('Completed'),
+                value: _isCompleted,
+                onChanged: (bool? value) {
+                  setState(() {
+                    _isCompleted = value ?? false;
+                  });
                 },
               ),
               SizedBox(height: 20),

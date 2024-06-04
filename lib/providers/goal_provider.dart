@@ -19,7 +19,7 @@ class GoalProvider with ChangeNotifier {
 
     _goals = snapshot.docs
         .map((doc) => Goal.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
+        .toList();  
 
     notifyListeners();
   }
@@ -52,5 +52,34 @@ class GoalProvider with ChangeNotifier {
     await FirebaseFirestore.instance.collection('goals').doc(id).delete();
     _goals.removeWhere((goal) => goal.id == id);
     notifyListeners();
+  }
+  List<Map<String, dynamic>> calculateTasks(Goal goal) {
+    List<Map<String, dynamic>> tasks = [];
+    DateTime startDate = DateTime.now();
+    DateTime endDate = goal.date;
+    int periodValue = goal.periodValue;
+
+    if (goal.periodType == 'Günlük') {
+      for (DateTime d = startDate; d.isBefore(endDate); d = d.add(Duration(days: 1))) {
+        tasks.add({'date': d, 'goal': goal});
+      }
+    } else if (goal.periodType == 'Haftalık') {
+      for (DateTime d = startDate; d.isBefore(endDate); d = d.add(Duration(days: 7))) {
+        tasks.add({'date': d, 'goal': goal});
+      }
+    } else if (goal.periodType == 'Aylık') {
+      for (DateTime d = startDate; d.isBefore(endDate); d = DateTime(d.year, d.month + 1, d.day)) {
+        tasks.add({'date': d, 'goal': goal});
+      }
+    }
+
+    return tasks;
+  }
+  List<Map<String, dynamic>> getAllTasks() {
+    List<Map<String, dynamic>> allTasks = [];
+    for (var goal in _goals) {
+      allTasks.addAll(calculateTasks(goal));
+    }
+    return allTasks;
   }
 }

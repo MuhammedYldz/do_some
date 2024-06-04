@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'goal_detail_screen.dart';
-import 'add_goal_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../providers/goal_provider.dart';
+import '../models/goals.dart';
+import '../screens/goal_detail_screen.dart';
+import '../screens/add_goal_screen.dart';
 
 class GoalListScreen extends StatelessWidget {
   final String goalType;
@@ -11,43 +13,42 @@ class GoalListScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user == null) {
-      return Center(child: Text('Please log in to see your goals.'));
-    }
+    final goalProvider = Provider.of<GoalProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text('$goalType Goals'),
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('goals')
-            .where('type', isEqualTo: goalType)
-            .where('userId', isEqualTo: user.uid)
-            .snapshots(),
-        builder: (ctx, AsyncSnapshot<QuerySnapshot> snapshot) {
+      body: FutureBuilder(
+        future: goalProvider.fetchGoals(),
+        builder: (ctx, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           }
-
-          final goalDocs = snapshot.data!.docs;
-
-          return ListView.builder(
-            itemCount: goalDocs.length,
-            itemBuilder: (ctx, index) => ListTile(
-              title: Text(goalDocs[index]['title']),
-              subtitle: Text(goalDocs[index]['description']),
-              onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => GoalDetailScreen(goalDocs[index].id),
-                ));
-              },
-            ),
+          return Consumer<GoalProvider>(
+            builder: (ctx, goalProvider, _) {
+              final goals = goalProvider.goals.where((goal) => goal.type == goalType).toList();
+              return ListView.builder(
+                itemCount: goals.length,
+                itemBuilder: (ctx, index) {
+                  final goal = goals[index];
+                  return ListTile(
+                    title: Text(goal.title),
+                    subtitle: Text(goal.description),
+                    onTap: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => GoalDetailScreen(goal.id),
+                      ));
+                    },
+                  );
+                },
+              );
+            },
           );
         },
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "addGoalListButton"+context.toString(),
         onPressed: () {
           Navigator.of(context).push(
             MaterialPageRoute(builder: (context) => AddGoalScreen()),

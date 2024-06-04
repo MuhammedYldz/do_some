@@ -50,6 +50,7 @@ class HomeScreen extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "addGoalMainButton",
         child: Icon(Icons.add, size: 36),
         onPressed: () {
           Navigator.of(context).push(
